@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 
-import re
 import os
 import sys
 import requests
 import eyed3
 import math
 import glob
-import string
 import credentials
 import argparse
-import time
 from pathlib import Path
 from colorama import Fore
 
@@ -104,7 +101,6 @@ if __name__ == "__main__":
         )
         response = request.json()
 
-
         for song in response['response']['songs']:
             artist = normalize_string(song['primary_artist']['name'])
             track = normalize_string(song['title'])
@@ -114,21 +110,24 @@ if __name__ == "__main__":
 
                     for match in glob.iglob(mp3_path + '/' + file + '/**/*', recursive=True):
                         if track in match.lower():
-                            audiofile = eyed3.load(match)
-                            if audiofile is None:
-                                print(Fore.RED + 'Couldn\'t load ID3 tag')
-                            else:
-                                artist = str(audiofile.tag.artist)
-                                if audiofile.tag.album_artist:
-                                    artist = str(audiofile.tag.album_artist)
-                                track_name = str(audiofile.tag.title)
-                                track_length = math.ceil(audiofile.info.time_secs)
+                            try:
+                                audiofile = eyed3.load(match)
+                                if audiofile is None:
+                                    print(Fore.RED + 'Couldn\'t load ID3 tag: ' + song['title_with_featured'])
+                                else:
+                                    artist = str(audiofile.tag.artist)
+                                    if audiofile.tag.album_artist:
+                                        artist = str(audiofile.tag.album_artist)
+                                    track_name = str(audiofile.tag.title)
+                                    track_length = math.ceil(audiofile.info.time_secs)
 
-                                append_to_playlist(
-                                    target_artist + ' - Top 50',
-                                    match,
-                                    track_length,
-                                    artist,
-                                    track_name
-                                )
-                                print(match)
+                                    append_to_playlist(
+                                        'Best of: ' + target_artist,
+                                        match,
+                                        track_length,
+                                        artist,
+                                        track_name
+                                    )
+                                    print(match)
+                            except Exception as e:
+                                print(Fore.RED + 'Couldn\'t load MP3: ' + song['title_with_featured'])
