@@ -97,40 +97,38 @@ if __name__ == "__main__":
 
     print('Searching through ' + mp3_path)
 
-    request = requests.get(
-        base_url + artist_api_path + '/songs?sort=popularity&per_page=50&page=1',
-        headers=credentials
-    )
-    response = request.json()
+    for page in range(1, 4):
+        request = requests.get(
+            base_url + artist_api_path + '/songs?sort=popularity&per_page=50&page=' + str(page),
+            headers=credentials
+        )
+        response = request.json()
 
 
-for song in response['response']['songs']:
-    artist = normalize_string(song['primary_artist']['name'])
-    track = normalize_string(song['title'])
+        for song in response['response']['songs']:
+            artist = normalize_string(song['primary_artist']['name'])
+            track = normalize_string(song['title'])
 
-    for file in os.listdir(mp3_path):
-        if artist == file.lower():
+            for file in os.listdir(mp3_path):
+                if artist == file.lower():
 
-            import glob
+                    for match in glob.iglob(mp3_path + '/' + file + '/**/*', recursive=True):
+                        if track in match.lower():
+                            audiofile = eyed3.load(match)
+                            if audiofile is None:
+                                print(Fore.RED + 'Couldn\'t load ID3 tag')
+                            else:
+                                artist = str(audiofile.tag.artist)
+                                if audiofile.tag.album_artist:
+                                    artist = str(audiofile.tag.album_artist)
+                                track_name = str(audiofile.tag.title)
+                                track_length = math.ceil(audiofile.info.time_secs)
 
-            for match in glob.iglob(mp3_path + '/' + file + '/**/*', recursive=True):
-                if track in match.lower():
-                    audiofile = eyed3.load(match)
-                    if audiofile is None:
-                        print(Fore.RED + 'Couldn\'t load ID3 tag')
-                        sys.exit('bad shit happened')
-
-                    artist = str(audiofile.tag.artist)
-                    if audiofile.tag.album_artist:
-                        artist = str(audiofile.tag.album_artist)
-                    track_name = str(audiofile.tag.title)
-                    track_length = math.ceil(audiofile.info.time_secs)
-
-                    append_to_playlist(
-                        target_artist + ' - Top 50',
-                        match,
-                        track_length,
-                        artist,
-                        track_name
-                    )
-                    print(match)
+                                append_to_playlist(
+                                    target_artist + ' - Top 50',
+                                    match,
+                                    track_length,
+                                    artist,
+                                    track_name
+                                )
+                                print(match)
