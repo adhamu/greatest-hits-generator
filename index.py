@@ -91,7 +91,6 @@ if __name__ == "__main__":
 
     target_artist = args.a
     mp3_path = Path(args.m)
-
     artist_api_path = get_artist_api_path(target_artist)
 
     if args.i is None:
@@ -120,4 +119,4 @@ if __name__ == "__main__":
     response = request.json()
 
 for song in response['response']['songs']:
-    print(song['title_with_featured'])
+    print(song['primary_artist']['name'] + ' - ' + song['title'])
