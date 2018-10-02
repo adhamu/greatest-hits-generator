@@ -4,19 +4,18 @@ import re
 import os
 import sys
 import requests
+import eyed3
 import math
 import glob
 import string
 import credentials
 import argparse
-import pickle
 import time
 from pathlib import Path
-from libpytunes import Library
-from colorama import Fore, Style
+from colorama import Fore
 
 base_url = 'https://api.genius.com'
-headers = {
+credentials = {
     'Authorization': 'Bearer ' + credentials.auth['token']
 }
 
@@ -25,12 +24,12 @@ RECORD_MARKER = "#EXTINF"
 
 target_artist = None
 mp3_path = None
-itunes_library = None
+
 
 def get_artist_api_path(artist):
     request = requests.get(
         base_url + '/search?q=' + artist + '&limit=1',
-        headers=headers
+        headers=credentials
     )
     response = request.json()
 
@@ -61,9 +60,13 @@ def create_playlist(playlist_name):
     fp.close()
 
 
+def normalize_string(string):
+    return string.lower().replace('.', '')
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Finds the most popular hits from an artist, checks a directory of MP3s or your iTunes library to see if you have the songs and generates an M3U playlist'
+        description='Finds the most popular hits from an artist, checks a directory of MP3s to see if you have the songs and generates an M3U playlist'
     )
     parser.add_argument(
         '-a',
@@ -79,13 +82,6 @@ if __name__ == "__main__":
         default='.',
         help='Absolute directory path to MP3s. (Default = current directory)'
     )
-    parser.add_argument(
-        '-i',
-        metavar='iTunes Library',
-        type=str,
-        required=False,
-        help='Absolute path to iTunes Library XML file. If provided, will override -m'
-    )
 
     args = parser.parse_args()
 
@@ -93,30 +89,48 @@ if __name__ == "__main__":
     mp3_path = Path(args.m)
     artist_api_path = get_artist_api_path(target_artist)
 
-    if args.i is None:
-        if not mp3_path.is_dir():
-            raise Exception('mp3_path is not a directory')
-            sys.exit(1)
-        else:
-            mp3_path = os.path.realpath(mp3_path)
+    if not mp3_path.is_dir():
+        raise Exception('mp3_path is not a directory')
+        sys.exit(1)
     else:
-        itunes_library = Path(args.i)
-        if not itunes_library.is_file():
-            raise Exception('iTunes library doesn\'t exist')
-            sys.exit(1)
-        else:
-            itunes_library = os.path.realpath(itunes_library)
+        mp3_path = os.path.realpath(mp3_path)
 
-    if itunes_library is None:
-        print('Searching through ' + mp3_path)
-    else:
-        print('Searching through ' + itunes_library)
+    print('Searching through ' + mp3_path)
 
     request = requests.get(
-        base_url + artist_api_path + '/songs?sort=popularity&per_page=50',
-        headers=headers
+        base_url + artist_api_path + '/songs?sort=popularity&per_page=50&page=1',
+        headers=credentials
     )
     response = request.json()
 
+
 for song in response['response']['songs']:
-    print(song['primary_artist']['name'] + ' - ' + song['title'])
+    artist = normalize_string(song['primary_artist']['name'])
+    track = normalize_string(song['title'])
+
+    for file in os.listdir(mp3_path):
+        if artist == file.lower():
+
+            import glob
+
+            for match in glob.iglob(mp3_path + '/' + file + '/**/*', recursive=True):
+                if track in match.lower():
+                    audiofile = eyed3.load(match)
+                    if audiofile is None:
+                        print(Fore.RED + 'Couldn\'t load ID3 tag')
+                        sys.exit('bad shit happened')
+
+                    artist = str(audiofile.tag.artist)
+                    if audiofile.tag.album_artist:
+                        artist = str(audiofile.tag.album_artist)
+                    track_name = str(audiofile.tag.title)
+                    track_length = math.ceil(audiofile.info.time_secs)
+
+                    append_to_playlist(
+                        target_artist + ' - Top 50',
+                        match,
+                        track_length,
+                        artist,
+                        track_name
+                    )
+                    print(match)
