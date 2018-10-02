@@ -1,0 +1,3 @@
+colorama==0.3.8
+libpytunes==1.5.2
+requests==2.18.3
