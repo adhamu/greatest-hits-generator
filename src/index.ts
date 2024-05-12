@@ -80,6 +80,12 @@ async function main() {
       }
     }
 
+    if (!matches.length) {
+      s.stop(`0 matches found for ${targetArtist}`)
+
+      continue
+    }
+
     const playlist = await createPlaylist(
       `Best of ${capitalize(targetArtist)}`,
       matches
