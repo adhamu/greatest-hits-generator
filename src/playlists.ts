@@ -7,7 +7,7 @@ const RECORD_MARKER = '#EXTINF'
 const FORMAT_DESCRIPTOR = '#EXTM3U'
 
 export const createPlaylist = async (name: string, tracks: PlaylistTrack[]) => {
-  const filename = resolve(`${name}.m3u8`)
+  const filename = resolve(`output/${name}.m3u8`)
   const content = tracks
     .map(
       track =>

@@ -15,9 +15,16 @@ const request = <T>(url: string, options?: RequestInit): Promise<T> =>
   })
 
 export const getArtistApiPath = (artist: string) =>
-  request<Artist>(`${baseUrl}/search?q=${artist}&limit=1`, {
+  request<Artist>(`${baseUrl}/search?q=${artist}&limit=5`, {
     headers,
-  }).then(result => result.response.hits[0].result.primary_artist.api_path)
+  }).then(
+    result =>
+      result.response.hits.find(
+        hit =>
+          hit.result.primary_artist.name.toLowerCase() === artist.toLowerCase()
+      )?.result.primary_artist.api_path ??
+      result.response.hits[0].result.primary_artist.api_path
+  )
 
 export const getSongs = (artistApiPath: string, page = 1, perPage = 50) =>
   request<Songs>(
