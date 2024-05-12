@@ -1,4 +1,4 @@
+.env
 *.mp3
 *.m3u
-credentials.py*
-__pycache__
+node_modules
