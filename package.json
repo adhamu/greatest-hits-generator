@@ -10,7 +10,7 @@
   "license": "UNLICENSED",
   "author": "Amit Dhamu <dev@amitd.co>",
   "scripts": {
-    "generate": "tsx src/index.ts",
+    "generate": "tsx --env-file=.env src/index.ts",
     "lint": "eslint .",
     "test": "jest --colors",
     "test:coverage": "yarn test --coverage",
