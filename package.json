@@ -25,5 +25,10 @@
     "jest": "^29.3.1",
     "tsx": "^4.10.1",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.7.0",
+    "glob": "^10.3.15",
+    "music-metadata": "^7.14.0"
   }
 }
