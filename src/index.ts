@@ -12,7 +12,7 @@ import { parseFile } from 'music-metadata'
 import { createPlaylist } from './playlists'
 import { textPrompt } from './prompts'
 import { getArtistApiPath, getSongs } from './requests'
-import { capitalize, normalizeString } from './utils'
+import { string } from './utils'
 
 import type { PlaylistTrack } from './types'
 
@@ -46,7 +46,7 @@ async function main() {
 
       for (const song of songs) {
         const [artist, track] = [song.primary_artist.name, song.title].map(
-          normalizeString
+          string.normalize
         )
 
         const artistDirectory = artistDirectories.find(
@@ -87,7 +87,7 @@ async function main() {
     }
 
     const playlist = await createPlaylist(
-      `Best of ${capitalize(targetArtist)}`,
+      `Best of ${string.capitalize(targetArtist)}`,
       matches
     )
 
