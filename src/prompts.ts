@@ -30,5 +30,5 @@ export const selectPrompt = <T extends string[]>(
       label: option,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     })) as any,
-  }) as Promise<T extends (infer U)[] ? U : never>
+  }) as Promise<T extends Array<infer U> ? U : never>
 }

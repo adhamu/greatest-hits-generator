@@ -8,7 +8,7 @@ export interface PlaylistTrack {
 export interface Artist {
   meta: { status: number }
   response: {
-    hits: {
+    hits: Array<{
       highlights: string[]
       index: string
       type: string
@@ -55,7 +55,7 @@ export interface Artist {
           iq: number
         }
       }
-    }[]
+    }>
   }
 }
 
@@ -64,7 +64,7 @@ export interface Songs {
     status: number
   }
   response: {
-    songs: {
+    songs: Array<{
       annotation_count: number
       api_path: string
       artist_names: string
@@ -118,6 +118,6 @@ export interface Songs {
         url: string
         iq: number
       }
-    }[]
+    }>
   }
 }

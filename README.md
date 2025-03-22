@@ -4,7 +4,7 @@ Generate a playlist of an artist's most popular hits
 
 ## Requirements
 
-- Node 20.13.1 LTS
+- Node 22.14 LTS
 - Genius API Client Token. You can retrieve this [here](https://genius.com/api-clients)
 
 ## Installation
