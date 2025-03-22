@@ -10,15 +10,12 @@
   "license": "UNLICENSED",
   "author": "Amit Dhamu <dev@amitd.co>",
   "scripts": {
-    "generate": "tsx --env-file=.env src/index.ts",
+    "generate": "tsx -C import --env-file=.env src/index.ts",
     "lint": "eslint .",
     "lint:fix": "yarn lint --fix",
     "test": "jest --colors",
     "test:coverage": "yarn test --coverage",
     "type": "tsc --noEmit"
-  },
-  "resolutions": {
-    "string-width": "4.2.3"
   },
   "dependencies": {
     "@clack/prompts": "^0.10.0",
